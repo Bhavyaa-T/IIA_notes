@@ -82,3 +82,38 @@ When the FIFO choices give a consistent order: one pipeline + one bypass, or at 
 
 **Q: Is "A before B, B before C" enough to say "A before C"?**
 No. Conflict relations aren't transitive, so check every pair.
+
+### Caches (06)
+
+**Q: 32 KiB, 4-way, 64 B lines, 32-bit addresses: how many tag, index and offset bits?**
+Offset 6, sets = 32768 / (64 × 4) = 128 so index 7, tag = 32 − 7 − 6 = 19.
+
+**Q: Why do caches work, and why use multi-word lines?**
+Temporal locality (reuse) and spatial locality (neighbours). Lines exploit spatial locality, and moving a whole line at once is more efficient than moving single words.
+
+**Q: Direct-mapped vs set-associative?**
+Direct-mapped: one possible slot, simplest and fastest, but suffers conflict misses (worst case: stride equal to the cache size). N-way: N slots compared in parallel, giving fewer conflict misses but more comparators and muxing and a slightly slower hit.
+
+**Q: What are the 3 Cs, and what fixes each?**
+Compulsory (larger lines, prefetching), capacity (bigger cache), conflict (more associativity). Coherence misses are a fourth type in multicore systems.
+
+**Q: L1 hit 1 cycle, 5% miss rate; L2 hit 10 cycles, 20% local miss rate; DRAM 100 cycles. What is the AMAT?**
+1 + 0.05 × (10 + 0.2 × 100) = 2.5 cycles.
+
+**Q: Write-back vs write-through?**
+Write-back: update only the cache, set a dirty bit, write the line back on eviction, giving low traffic. Write-through: update the next level on every write, so it's always up to date but needs a write buffer.
+
+**Q: What happens on a miss in a blocking write-back cache?**
+Stop accepting requests. If the victim is dirty, write it back. Request the line, wait for the fill, install it and update the tag and valid bit. Then answer the load, or merge the store and set dirty, and return to ready.
+
+**Q: What is a store buffer, and what must a load do with it?**
+A FIFO of pending stores that drains into L1 in the background, so stores retire without waiting. A load searches it in parallel with L1 and takes the newest matching entry. The drain must be arbitrated against loads for the L1 arrays.
+
+**Q: Blocking vs non-blocking cache? What is an MSHR?**
+A non-blocking cache keeps serving hits and further misses while a miss is outstanding. An MSHR is a table entry tracking one outstanding line miss. Later misses to the same line merge into it. Responses can return out of order, so requests carry tags.
+
+**Q: Why is a VIPT L1 often limited to page size × ways?**
+So the index and offset bits come only from the page offset, which is the same in virtual and physical addresses. That lets the TLB lookup and cache indexing run in parallel without aliasing.
+
+**Q: What are the MESI states?**
+Modified (only copy, dirty), Exclusive (only copy, clean, can be written without asking), Shared (clean, other copies may exist), Invalid.

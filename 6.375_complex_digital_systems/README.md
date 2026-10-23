@@ -1,6 +1,6 @@
 # MIT 6.375 Complex Digital Systems: Interview Prep Notes
 
-MIT 6.375 (Arvind, Spring 2016), lectures L04–L08. The ideas covered are area/throughput trade-offs, pipelining, valid/ready handshakes, FIFOs, bypassing and same-cycle concurrency, all of which come up in RTL and micro-architecture interviews.
+MIT 6.375 (Arvind, Spring 2016), lectures L04–L08 and L12. The ideas covered are area/throughput trade-offs, pipelining, valid/ready handshakes, FIFOs, bypassing and same-cycle concurrency, all of which come up in RTL and micro-architecture interviews.
 
 These notes stay **high-level**: concepts, trade-offs and likely interview questions. Code is in **SystemVerilog** and is only there to make an idea concrete. The course itself uses a different HDL (Bluespec), which these notes leave out. Source PDFs are in `source_slides/` (gitignored).
 
@@ -13,6 +13,7 @@ These notes stay **high-level**: concepts, trade-offs and likely interview quest
 | [03_fifos_and_bypassing.md](03_fifos_and_bypassing.md) | L06 | Pipeline / bypass / conflict-free FIFOs, bypass register file |
 | [04_ip_lookup_case_study.md](04_ip_lookup_case_study.md) | L07 | Circular pipeline, completion buffer, dead cycles |
 | [05_concurrency.md](05_concurrency.md) | L08 | When can two operations share a cycle? Conflict matrices |
+| [06_caches.md](06_caches.md) | L12 | Cache organisation and policies, blocking-cache miss handling, store buffer; plus 3Cs, AMAT, MSHRs, MESI, VIPT |
 | [interview_questions.md](interview_questions.md) | All | Rapid-fire Q&A for revision |
 
 ## The one-paragraph summary
@@ -27,3 +28,4 @@ A big combinational circuit is large and has a long critical path. **Folding** r
 4. **Bypassing buys latency with combinational path length.** A pipeline FIFO adds a backward path (ready), a bypass FIFO adds a forward path (data), and a conflict-free FIFO has neither but needs an extra entry.
 5. **Parallel must equal some serial order** (serialisability, the same idea as in databases).
 6. **Micro-architecture matters more than the HDL.** Different HDLs came within about 10% of each other, while different architectures differed by up to 6x in area (04).
+7. **Memory is slow and has variable latency.** Caches exploit locality to hide the latency, FIFOs and request/response interfaces absorb the variation, and store buffers and non-blocking caches keep the pipeline moving during misses (06).
